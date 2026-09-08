@@ -12,3 +12,11 @@ jobs:
       - name: Compiler les fichiers Swift pour iOS
         run: |
           swiftc -target arm64-apple-ios14.0 -sdk $(xcrun --sdk iphoneos --show-sdk-path) HackerAppApp.swift ContentView.swift -o HackerAppBinary
+          mkdir Output
+          mv HackerAppBinary Output/
+
+      - name: Sauvegarder l'application compilée
+        uses: actions/upload-artifact@v4
+        with:
+          name: HackerAppUI
+          path: Output/
