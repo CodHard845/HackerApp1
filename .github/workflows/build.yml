@@ -9,14 +9,6 @@ jobs:
       - name: Récupérer le code
         uses: actions/checkout@v4
 
-      - name: Créer le projet Xcode en ligne de commande
+      - name: Compiler les fichiers Swift pour iOS
         run: |
-          # On crée un projet minimaliste compatible iOS
-          mkdir -p HackerApp.xcodeproj
-          cat << 'EOF' > HackerApp.xcodeproj/project.pbxproj
-          // Projets Xcode minimaliste géré par script
-          EOF
-          
-          # Compilation via xcodebuild pour iOS Simulator/Device (Génération de l'archive)
-          # Pour faire simple et propre sans certificat payant, on compile pour l'archi iOS
           swiftc -target arm64-apple-ios14.0 -sdk $(xcrun --sdk iphoneos --show-sdk-path) HackerAppApp.swift ContentView.swift -o HackerAppBinary
