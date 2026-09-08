@@ -9,14 +9,48 @@ jobs:
       - name: Récupérer le code
         uses: actions/checkout@v4
 
-      - name: Compiler les fichiers Swift pour iOS
+      - name: Compiler et empaqueter en .ipa
         run: |
-          swiftc -target arm64-apple-ios14.0 -sdk $(xcrun --sdk iphoneos --show-sdk-path) HackerAppApp.swift ContentView.swift -o HackerAppBinary
-          mkdir Output
-          mv HackerAppBinary Output/
+          # 1. Compilation du code Swift natif pour iOS
+          swiftc -target arm64-apple-ios14.0 -sdk $(xcrun --sdk iphoneos --show-sdk-path) HackerAppApp.swift ContentView.swift -o HackerApp
 
-      - name: Sauvegarder l'application compilée
+          # 2. Création de la structure d'une vraie app iOS
+          mkdir -p Payload/HackerApp.app
+          mv HackerApp Payload/HackerApp.app/HackerApp
+
+          # 3. Création du fichier Info.plist obligatoire pour qu'iOS accepte l'app
+          cat << 'EOF' > Payload/HackerApp.app/Info.plist
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>CFBundleIdentifier</key>
+              <string>com.hacker.HackerApp1</string>
+              <key>CFBundleName</key>
+              <string>HackerApp</string>
+              <key>CFBundleExecutable</key>
+              <string>HackerApp</string>
+              <key>CFBundleVersion</key>
+              <string>1.0</string>
+              <key>CFBundleShortVersionString</key>
+              <string>1.0</string>
+              <key>MinimumOSVersion</key>
+              <string>14.0</string>
+              <key>UIDeviceFamily</key>
+              <array>
+                  <integer>1</integer>
+              </array>
+          </dict>
+          </plist>
+          EOF
+
+          # 4. Compression du dossier en fichier .ipa
+          zip -r HackerApp.ipa Payload
+          mkdir Output
+          mv HackerApp.ipa Output/
+
+      - name: Sauvegarder le fichier .ipa
         uses: actions/upload-artifact@v4
         with:
-          name: HackerAppUI
+          name: HackerAppIPA
           path: Output/
