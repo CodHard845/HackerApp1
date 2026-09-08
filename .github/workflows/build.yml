@@ -1,23 +1,22 @@
-name: Compiler App iOS
+name: Build iOS App
 
 on: [push]
 
 jobs:
   build:
-  # GitHub met un vrai Mac à dispo gratuitement pour les repos publics !
-    runs-on: macos-latest 
+    runs-on: macos-latest
     steps:
       - name: Récupérer le code
         uses: actions/checkout@v4
 
-      - name: Compiler le code Swift
+      - name: Créer le projet Xcode en ligne de commande
         run: |
-          swiftc main.swift -o HackerApp
-          mkdir Output
-          mv HackerApp Output/
-
-      - name: Sauvegarder l'application compilée
-        uses: actions/upload-artifact@v4
-        with:
-          name: MonAppCompileur
-          path: Output/
+          # On crée un projet minimaliste compatible iOS
+          mkdir -p HackerApp.xcodeproj
+          cat << 'EOF' > HackerApp.xcodeproj/project.pbxproj
+          // Projets Xcode minimaliste géré par script
+          EOF
+          
+          # Compilation via xcodebuild pour iOS Simulator/Device (Génération de l'archive)
+          # Pour faire simple et propre sans certificat payant, on compile pour l'archi iOS
+          swiftc -target arm64-apple-ios14.0 -sdk $(xcrun --sdk iphoneos --show-sdk-path) HackerAppApp.swift ContentView.swift -o HackerAppBinary
